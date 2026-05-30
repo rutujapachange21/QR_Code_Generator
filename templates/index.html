@@ -3,259 +3,389 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart QR Magic | Premium Generator</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700;900&display=swap" rel="stylesheet">
-    <style>
-        /* --- GLOBAL STYLES & SPECTRUM ANIMATED BACKGROUND --- */
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Outfit', sans-serif; scroll-behavior: smooth; }
+    <title>QR Craft - Dynamic QR Code Generator</title>
+    
+    <!-- Tailwind CSS v4 Browser CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- QRCode.js Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    
+    <!-- Script to prevent Flash of Unstyled Content (FOUC) -->
+    <script>
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    </script>
+
+    <!-- Tailwind manual dark mode configuration -->
+    <style type="text/tailwindcss">
+        @custom-variant dark (&:where(.dark, .dark *));
         
-        body {
-            /* 5-Color Gradient matching your image */
-            background: linear-gradient(135deg, #c2002f, #ff7b00, #00b09b, #0066ff, #3b0086);
-            background-size: 400% 400%;
-            animation: spectrumHype 15s ease infinite;
-            color: rgb(255, 255, 255);
-            min-height: 100vh;
+        html { scroll-behavior: smooth; }
+        
+        @keyframes marquee {
+            0% { transform: translateX(0%); }
+            100% { transform: translateX(-50%); }
         }
-
-        @keyframes spectrumHype {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-
-        /* --- STICKY NAVIGATION --- */
-        nav {
-            background: rgba(255, 255, 255, 0.08);
-            backdrop-filter: blur(15px);
-            border-bottom: 1px solid rgba(255,255,255,0.2);
-            padding: 15px 5%;
+        .animate-marquee {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
+            width: max-content;
+            animation: marquee 20s linear infinite;
         }
-
-        /* --- BRAND LOGO WITH NEW WHITE ICON --- */
-        .logo-container {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            text-decoration: none;
+        .animate-marquee:hover {
+            animation-play-state: paused;
         }
-
-        /* Pure White Icon Background with Black Lightning Bolt */
-        .logo-icon {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 42px;
-            height: 42px;
-            background: rgb(255, 255, 255); 
-            color: rgb(15, 23, 42); /* Deep dark/black color for bolt */
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(255, 255, 255, 0.35);
-            font-size: 1.4rem;
-            font-weight: bold;
-            animation: pulseIcon 2s infinite alternate;
-        }
-
-        @keyframes pulseIcon {
-            0% { transform: scale(1); box-shadow: 0 4px 15px rgba(255, 255, 255, 0.3); }
-            100% { transform: scale(1.05); box-shadow: 0 6px 22px rgba(255, 255, 255, 0.6); }
-        }
-
-        /* Glowing text gradient to match logo icon */
-        .logo-text { 
-            font-size: 1.8rem; 
-            font-weight: 900; 
-            letter-spacing: 0.5px; 
-            background: linear-gradient(135deg, rgb(255, 255, 255), rgb(200, 220, 255));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-shadow: 0 2px 10px rgba(255,255,255,0.1);
-        }
-
-        .nav-links a { text-decoration: none; font-weight: 600; color: rgba(255,255,255,0.9); margin-left: 30px; transition: color 0.3s; }
-        .nav-links a:hover { color: rgb(255, 255, 255); text-shadow: 0 0 8px rgba(255,255,255,0.5); }
-
-        /* --- 1. HERO BANNER (QR GENERATOR) --- */
-        .hero { text-align: center; padding: 80px 20px; min-height: 85vh; display: flex; flex-direction: column; justify-content: center; }
-        .hero h1 { font-size: 4rem; font-weight: 900; margin-bottom: 15px; text-shadow: 0 4px 15px rgba(0,0,0,0.2); }
-        .hero p { font-size: 1.2rem; color: rgba(255,255,255,0.95); margin-bottom: 40px; text-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         
-        /* Modern Glassmorphism Form Card */
-        .qr-card {
-            background: rgba(255, 255, 255, 0.15); 
-            backdrop-filter: blur(25px);
-            border: 1px solid rgba(255,255,255,0.3);
-            padding: 40px; 
-            border-radius: 24px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.2); 
-            max-width: 450px;
-            margin: 0 auto; 
-            transition: transform 0.3s, box-shadow 0.3s;
+        /* Dark mode specific custom properties */
+        .dark .bg-neon-gradient {
+            background: radial-gradient(circle at top left, rgba(88, 28, 135, 0.4) 0%, rgba(0, 0, 0, 1) 40%, rgba(30, 58, 138, 0.3) 80%, rgba(0, 0, 0, 1) 100%);
         }
-        .qr-card:hover { transform: translateY(-5px); box-shadow: 0 30px 60px rgba(0,0,0,0.3); }
-        
-        input[type="url"] {
-            width: 100%; padding: 18px; border: 2px solid rgba(255,255,255,0.3);
-            border-radius: 12px; font-size: 1rem; margin-bottom: 20px;
-            background: rgba(0,0,0,0.25); color: rgb(255, 255, 255); outline: none; transition: 0.3s;
+        .dark .neon-glow {
+            box-shadow: 0 0 20px rgba(168, 85, 247, 0.4), 0 0 40px rgba(56, 189, 248, 0.2);
         }
-        input[type="url"]::placeholder { color: rgba(255,255,255,0.7); }
-        input[type="url"]:focus { border-color: rgb(255, 255, 255); background: rgba(0,0,0,0.4); box-shadow: 0 0 15px rgba(255,255,255,0.2); }
-        
-        /* GENERATE CODE BUTTON (GRADIENT ORANGE-RED) */
-        .btn-generate {
-            width: 100%; padding: 18px; border: none; border-radius: 12px;
-            background: linear-gradient(135deg, rgb(255, 65, 108), rgb(255, 75, 43)); 
-            color: white; 
-            font-size: 1.2rem; font-weight: 900;
-            cursor: pointer; transition: all 0.3s; 
-            box-shadow: 0 10px 20px rgba(255, 65, 108, 0.3);
-        }
-        .btn-generate:hover { transform: scale(1.02); box-shadow: 0 15px 30px rgba(255, 65, 108, 0.5); }
-        
-        /* QR Code Result Output */
-        .qr-result { margin-top: 25px; padding-top: 25px; border-top: 1px solid rgba(255,255,255,0.3); }
-        .qr-result img { width: 200px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.4); border: 6px solid rgb(255, 255, 255); }
-        
-        /* DOWNLOAD BUTTON (NEON CYAN-GREEN) */
-        .download-btn { 
-            display: inline-block; padding: 14px 30px; 
-            background: linear-gradient(135deg, rgb(0, 242, 254), rgb(79, 172, 254));
-            color: rgb(0, 32, 96); 
-            border: none;
-            text-decoration: none; border-radius: 10px; font-weight: 900; transition: all 0.3s;
-            box-shadow: 0 5px 20px rgba(0, 242, 254, 0.4);
-        }
-        .download-btn:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(0, 242, 254, 0.7); }
-
-        /* --- 2. COMPANY LOGO SLIDER --- */
-        .slider-container { background: rgba(0, 0, 0, 0.15); padding: 30px 0; overflow: hidden; white-space: nowrap; border-top: 1px solid rgba(255,255,255,0.1); border-bottom: 1px solid rgba(255,255,255,0.1); }
-        .logo-track { display: inline-block; animation: scrollLogos 20s linear infinite; }
-        .logo-track span { font-size: 1.5rem; font-weight: 800; color: rgba(255,255,255,0.7); margin: 0 50px; text-transform: uppercase; letter-spacing: 2px;}
-        @keyframes scrollLogos { from { transform: translateX(0); } to { transform: translateX(-50%); } }
-
-        /* --- 3. ABOUT COMPANY --- */
-        .section-container { padding: 100px 5%; text-align: center; }
-        .section-title { font-size: 2.5rem; font-weight: 900; margin-bottom: 50px; text-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        
-        .grid-container { display: flex; gap: 30px; justify-content: center; flex-wrap: wrap; max-width: 1100px; margin: 0 auto; }
-        .feature-card {
-            background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255,255,255,0.25);
-            backdrop-filter: blur(15px); padding: 40px; border-radius: 20px; width: 320px;
-            text-align: left; transition: transform 0.3s; box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-        }
-        .feature-card:hover { transform: translateY(-10px); background: rgba(255, 255, 255, 0.15); box-shadow: 0 15px 40px rgba(0,0,0,0.2); }
-        .feature-card h3 { font-size: 1.5rem; margin-bottom: 15px; font-weight: 800; }
-        .feature-card p { color: rgba(255,255,255,0.9); line-height: 1.6; }
-        .icon { font-size: 2.5rem; margin-bottom: 20px; text-shadow: 0 2px 10px rgba(0,0,0,0.2); }
-
-        /* --- 4. CLIENT TESTIMONIALS --- */
-        .review-card {
-            background: rgba(0, 0, 0, 0.25); padding: 40px; border-radius: 20px;
-            width: 320px; text-align: left; border-left: 4px solid rgb(255, 255, 255);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-        }
-        .review-text { font-size: 1.1rem; font-style: italic; margin-bottom: 20px; color: rgba(255,255,255,0.95); }
-        .review-author { font-weight: 900; color: rgb(255, 255, 255); font-size: 1.1rem; }
-        .review-role { font-size: 0.9rem; color: rgba(255,255,255,0.7); font-weight: 500; }
-
-        /* --- 5. FOOTER --- */
-        footer { background: rgba(0, 0, 0, 0.3); text-align: center; padding: 40px 20px; margin-top: 50px; border-top: 1px solid rgba(255,255,255,0.1); }
-        footer p { color: rgba(255,255,255,0.7); font-weight: 500; }
     </style>
 </head>
-<body>
+<body class="bg-slate-50 text-slate-800 dark:bg-black dark:text-slate-300 font-sans antialiased transition-colors duration-300 selection:bg-indigo-200 dark:selection:bg-purple-500/30 selection:text-indigo-900 dark:selection:text-purple-200">
 
-    <nav>
-        <a href="#home" class="logo-container">
-            <div class="logo-icon">⚡</div>
-            <div class="logo-text">QR Magic</div>
-        </a>
-        <div class="nav-links">
-            <a href="#home">Generator</a>
-            <a href="#about">Features</a>
-            <a href="#reviews">Reviews</a>
+    <!-- Navigation Header -->
+    <header class="sticky top-0 z-50 bg-white/80 dark:bg-black/60 backdrop-blur-xl border-b border-slate-200 dark:border-purple-900/30 transition-colors duration-300">
+        <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-2 font-bold text-xl text-indigo-600 dark:text-transparent dark:bg-clip-text dark:bg-gradient-to-r dark:from-purple-400 dark:to-cyan-400">
+                <i class="fa-solid fa-qrcode text-2xl dark:text-purple-400"></i>
+                <span>QRCraft</span>
+            </div>
+            <nav class="hidden md:flex items-center gap-8 text-sm font-medium text-slate-600 dark:text-slate-400">
+                <a href="#hero" class="hover:text-indigo-600 dark:hover:text-cyan-400 transition">Generator</a>
+                <a href="#about" class="hover:text-indigo-600 dark:hover:text-cyan-400 transition">About</a>
+                <a href="#testimonials" class="hover:text-indigo-600 dark:hover:text-cyan-400 transition">Testimonials</a>
+                <a href="#reviews" class="hover:text-indigo-600 dark:hover:text-cyan-400 transition">Reviews</a>
+            </nav>
+            <div class="flex items-center gap-4">
+                <!-- Theme Toggle Button -->
+                <button id="theme-toggle" class="text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-cyan-400 transition p-2 rounded-lg cursor-pointer">
+                    <i id="theme-icon" class="fa-solid fa-moon text-lg"></i>
+                </button>
+                <a href="#hero" class="bg-indigo-600 hover:bg-indigo-700 dark:bg-gradient-to-r dark:from-purple-600 dark:to-blue-600 dark:hover:from-purple-500 dark:hover:to-blue-500 text-white px-5 py-2 rounded-lg text-sm font-medium shadow-sm dark:shadow-[0_0_15px_rgba(168,85,247,0.5)] transition">Get Started</a>
+            </div>
         </div>
-    </nav>
+    </header>
 
-    <div id="home" class="hero">
-        <h1>Instantly Connect.</h1>
-        <p>Generate high-resolution QR codes in milliseconds. No signup required.</p>
+    <!-- 1. Hero Banner -->
+    <section id="hero" class="relative py-20 lg:py-32 overflow-hidden bg-gradient-to-b from-indigo-50/50 via-white to-white dark:bg-none dark:bg-neon-gradient border-b border-transparent dark:border-purple-900/20 transition-colors duration-300">
+        <!-- Decorative neon blur orbs (Dark Mode Only) -->
+        <div class="hidden dark:block absolute top-0 left-1/4 w-96 h-96 bg-purple-600/20 rounded-full blur-3xl -z-10"></div>
+        <div class="hidden dark:block absolute bottom-0 right-1/4 w-96 h-96 bg-blue-600/20 rounded-full blur-3xl -z-10"></div>
+
+        <div class="max-w-7xl mx-auto px-6 grid lg:grid-cols-12 gap-12 items-center">
+            <div class="lg:col-span-7 space-y-6 text-center lg:text-left">
+                <span class="inline-flex items-center gap-1.5 py-1 px-3 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800 dark:bg-purple-900/30 dark:text-purple-300 dark:border dark:border-purple-500/30 transition-colors">
+                    <span class="w-1.5 h-1.5 rounded-full bg-indigo-600 dark:bg-cyan-400 animate-pulse"></span>
+                    Next-Gen QR Solutions
+                </span>
+                <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-tight transition-colors">
+                    Generate Beautiful QR Codes <span class="text-indigo-600 dark:text-transparent dark:bg-clip-text dark:bg-gradient-to-r dark:from-cyan-400 dark:via-purple-400 dark:to-blue-500">Instantly</span>
+                </h1>
+                <p class="text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto lg:mx-0 transition-colors">
+                    Create production-ready, high-resolution QR codes for websites, Wi-Fi networks, and text in seconds. Completely free and fully optimized.
+                </p>
+                <div class="pt-4 max-w-md mx-auto lg:mx-0">
+                    <div class="flex flex-col sm:flex-row gap-3 shadow-sm dark:shadow-lg rounded-xl p-2 bg-white dark:bg-slate-900/50 dark:backdrop-blur-sm border border-slate-200 dark:border-purple-500/20 transition-colors">
+                        <!-- REMOVED THE VALUE ATTRIBUTE HERE -->
+                        <input type="url" id="qr-input" placeholder="Enter landing page URL..." class="flex-1 px-4 py-3 bg-transparent text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none text-sm rounded-lg" required>
+                        <button id="generate-btn" class="bg-indigo-600 hover:bg-indigo-700 dark:bg-gradient-to-r dark:from-purple-600 dark:to-blue-600 dark:hover:from-purple-500 dark:hover:to-blue-500 text-white px-6 py-3 rounded-lg font-medium text-sm transition dark:shadow-[0_0_15px_rgba(56,189,248,0.4)] whitespace-nowrap cursor-pointer">
+                            Generate Code
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="lg:col-span-5 flex justify-center">
+                <div class="bg-white dark:bg-slate-900/80 dark:backdrop-blur-md p-8 rounded-3xl shadow-xl dark:shadow-none border border-slate-100 dark:border-slate-800 flex flex-col items-center gap-6 w-full max-w-sm dark:neon-glow transition-all duration-300">
+                    <div class="p-4 bg-slate-50 dark:bg-white rounded-2xl border border-slate-100 dark:border-slate-200 min-h-[232px] min-w-[232px] flex items-center justify-center transition-colors">
+                        <div id="qrcode"></div>
+                    </div>
+                    <button id="download-btn" class="w-full flex items-center justify-center gap-2 bg-slate-900 hover:bg-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700 text-white py-3 rounded-xl font-medium text-sm transition border border-transparent dark:border-slate-700 dark:hover:border-purple-500/50 cursor-pointer">
+                        <i class="fa-solid fa-download dark:text-cyan-400"></i> Download Image
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 2. Company Logo Slider -->
+    <section class="py-10 border-y border-slate-200 dark:border-transparent dark:border-b dark:border-purple-900/20 bg-white dark:bg-black overflow-hidden relative transition-colors duration-300">
+        <div class="hidden dark:block absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-black to-transparent z-10"></div>
+        <div class="hidden dark:block absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-black to-transparent z-10"></div>
         
-        <div class="qr-card">
-            <form method="POST" action="/#home">
-                <input type="url" name="url" placeholder="Enter your URL (https://...)" value="{{ url }}" required>
-                <button type="submit" class="btn-generate">Generate QR Code</button>
+        <div class="max-w-7xl mx-auto px-6 mb-6">
+            <p class="text-center text-xs font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-600 transition-colors">Trusted by fast-growing brands worldwide</p>
+        </div>
+        <div class="relative w-full overflow-hidden flex">
+            <div class="animate-marquee flex items-center gap-16 text-slate-300 dark:text-slate-700 font-bold text-xl tracking-widest hover:text-slate-400 dark:hover:text-slate-500 transition-colors">
+                <div class="flex items-center gap-2"><i class="fa-brands fa-stripe text-4xl"></i>STRIPE</div>
+                <div class="flex items-center gap-2"><i class="fa-brands fa-airbnb text-4xl"></i>AIRBNB</div>
+                <div class="flex items-center gap-2"><i class="fa-brands fa-spotify text-4xl"></i>SPOTIFY</div>
+                <div class="flex items-center gap-2"><i class="fa-brands fa-amazon text-4xl"></i>AMAZON</div>
+                <div class="flex items-center gap-2"><i class="fa-brands fa-slack text-4xl"></i>SLACK</div>
+                <div class="flex items-center gap-2"><i class="fa-brands fa-shopify text-4xl"></i>SHOPIFY</div>
+                <div class="flex items-center gap-2"><i class="fa-brands fa-stripe text-4xl"></i>STRIPE</div>
+                <div class="flex items-center gap-2"><i class="fa-brands fa-airbnb text-4xl"></i>AIRBNB</div>
+                <div class="flex items-center gap-2"><i class="fa-brands fa-spotify text-4xl"></i>SPOTIFY</div>
+                <div class="flex items-center gap-2"><i class="fa-brands fa-amazon text-4xl"></i>AMAZON</div>
+                <div class="flex items-center gap-2"><i class="fa-brands fa-slack text-4xl"></i>SLACK</div>
+                <div class="flex items-center gap-2"><i class="fa-brands fa-shopify text-4xl"></i>SHOPIFY</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 3. About Company -->
+    <section id="about" class="py-20 lg:py-28 bg-slate-50 dark:bg-black relative transition-colors duration-300">
+        <div class="max-w-7xl mx-auto px-6 relative z-10">
+            <div class="max-w-3xl mx-auto text-center space-y-4 mb-16">
+                <h2 class="text-3xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-4xl transition-colors">Streamlining Your Digital Connections</h2>
+                <p class="text-lg text-slate-600 dark:text-slate-400 transition-colors">We bridge the physical and digital worlds by providing fast, customizable, error-resistant QR solutions tailored for modern workflows.</p>
+            </div>
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="bg-white dark:bg-slate-900/50 p-8 rounded-2xl border border-slate-200/60 dark:border-purple-900/30 shadow-sm dark:shadow-none hover:shadow-md dark:hover:border-cyan-500/50 dark:hover:shadow-[0_0_20px_rgba(56,189,248,0.1)] transition duration-300 cursor-default">
+                    <div class="w-12 h-12 rounded-xl bg-indigo-50 dark:bg-purple-900/40 flex items-center justify-center text-indigo-600 dark:text-cyan-400 mb-6 text-xl dark:border border-purple-500/20 transition-colors">
+                        <i class="fa-solid fa-bolt"></i>
+                    </div>
+                    <h3 class="font-bold text-xl text-slate-900 dark:text-white mb-2 transition-colors">Instant Generation</h3>
+                    <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed transition-colors">No lag, no dynamic generation waiting lines. Your codes are compiled mathematically within your local browser instantly.</p>
+                </div>
+                <div class="bg-white dark:bg-slate-900/50 p-8 rounded-2xl border border-slate-200/60 dark:border-purple-900/30 shadow-sm dark:shadow-none hover:shadow-md dark:hover:border-purple-500/50 dark:hover:shadow-[0_0_20px_rgba(168,85,247,0.1)] transition duration-300 cursor-default">
+                    <div class="w-12 h-12 rounded-xl bg-indigo-50 dark:bg-purple-900/40 flex items-center justify-center text-indigo-600 dark:text-purple-400 mb-6 text-xl dark:border border-purple-500/20 transition-colors">
+                        <i class="fa-solid fa-shield-halved"></i>
+                    </div>
+                    <h3 class="font-bold text-xl text-slate-900 dark:text-white mb-2 transition-colors">Privacy First</h3>
+                    <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed transition-colors">We respect your tracking parameters. The destination routing details remain entirely clean, private, and secure.</p>
+                </div>
+                <div class="bg-white dark:bg-slate-900/50 p-8 rounded-2xl border border-slate-200/60 dark:border-purple-900/30 shadow-sm dark:shadow-none hover:shadow-md dark:hover:border-blue-500/50 dark:hover:shadow-[0_0_20px_rgba(59,130,246,0.1)] transition duration-300 cursor-default">
+                    <div class="w-12 h-12 rounded-xl bg-indigo-50 dark:bg-purple-900/40 flex items-center justify-center text-indigo-600 dark:text-blue-400 mb-6 text-xl dark:border border-purple-500/20 transition-colors">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    </div>
+                    <h3 class="font-bold text-xl text-slate-900 dark:text-white mb-2 transition-colors">Multi-Target Ready</h3>
+                    <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed transition-colors">Easily construct segmented variations of multiple destination URLs, keeping campaign distribution clean.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 4. Client Testimonials -->
+    <section id="testimonials" class="py-20 bg-slate-900 dark:bg-gradient-to-br dark:from-slate-900 dark:via-purple-950/40 dark:to-black text-white rounded-3xl dark:rounded-none mx-4 lg:mx-8 dark:mx-0 my-6 dark:my-0 border-y border-transparent dark:border-purple-900/30 overflow-hidden transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="text-center space-y-4 mb-16">
+                <h2 class="text-3xl font-bold tracking-tight sm:text-4xl">What Creators Say</h2>
+                <p class="text-slate-400 dark:text-cyan-400/80 max-w-xl mx-auto transition-colors">Discover how engineering and marketing teams integrate our generation platform.</p>
+            </div>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="bg-slate-800 dark:bg-black/60 dark:backdrop-blur-sm p-8 rounded-2xl border border-slate-700/50 dark:border-slate-800 flex flex-col justify-between transition-colors">
+                    <p class="text-slate-300 italic text-sm leading-relaxed">"The vector quality on download is impeccable. We used these codes for nationwide retail print displays without a single scanning fault reported."</p>
+                    <div class="flex items-center gap-4 mt-6 pt-6 border-t border-slate-700/60 dark:border-slate-800 transition-colors">
+                        <div class="w-10 h-10 rounded-full bg-indigo-500 dark:bg-purple-600 flex items-center justify-center font-bold text-sm dark:shadow-[0_0_10px_rgba(168,85,247,0.5)] transition-colors">MS</div>
+                        <div>
+                            <h4 class="font-semibold text-sm">Marcus Sterling</h4>
+                            <p class="text-xs text-slate-400 dark:text-purple-400 transition-colors">Creative Director, Apex Media</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-slate-800 dark:bg-black/60 dark:backdrop-blur-sm p-8 rounded-2xl border border-slate-700/50 dark:border-slate-800 flex flex-col justify-between transition-colors">
+                    <p class="text-slate-300 italic text-sm leading-relaxed">"Our product marketing landing pages see thousands of physical redirects weekly. This configuration workflow cuts deployment friction completely."</p>
+                    <div class="flex items-center gap-4 mt-6 pt-6 border-t border-slate-700/60 dark:border-slate-800 transition-colors">
+                        <div class="w-10 h-10 rounded-full bg-emerald-500 dark:bg-cyan-600 flex items-center justify-center font-bold text-sm dark:shadow-[0_0_10px_rgba(8,145,178,0.5)] transition-colors">SL</div>
+                        <div>
+                            <h4 class="font-semibold text-sm">Sarah Lin</h4>
+                            <p class="text-xs text-slate-400 dark:text-cyan-400 transition-colors">Growth Lead, Optima SaaS</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-slate-800 dark:bg-black/60 dark:backdrop-blur-sm p-8 rounded-2xl border border-slate-700/50 dark:border-slate-800 flex flex-col justify-between md:col-span-2 lg:col-span-1 transition-colors">
+                    <p class="text-slate-300 italic text-sm leading-relaxed">"Lightweight, snappy interface, no locked telemetry limits. It does exactly what it promises perfectly without annoying ads."</p>
+                    <div class="flex items-center gap-4 mt-6 pt-6 border-t border-slate-700/60 dark:border-slate-800 transition-colors">
+                        <div class="w-10 h-10 rounded-full bg-amber-500 dark:bg-blue-600 flex items-center justify-center font-bold text-sm dark:shadow-[0_0_10px_rgba(37,99,235,0.5)] transition-colors">DK</div>
+                        <div>
+                            <h4 class="font-semibold text-sm">David Kovacs</h4>
+                            <p class="text-xs text-slate-400 dark:text-blue-400 transition-colors">Fullstack Engineer</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 5. Feedback and Reviews -->
+    <section id="reviews" class="py-20 lg:py-28 bg-white dark:bg-black max-w-7xl mx-auto px-6 grid lg:grid-cols-12 gap-16 items-start transition-colors duration-300">
+        <div class="lg:col-span-5 space-y-6">
+            <h2 class="text-3xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-4xl transition-colors">Share Your Experience</h2>
+            <p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed transition-colors">
+                Your feedback drives active feature additions. Submit an assessment score to let us know how your generated landing page routing turned out.
+            </p>
+            <form id="feedback-form" class="space-y-4 bg-white dark:bg-slate-900/40 p-6 rounded-2xl border border-slate-200 dark:border-purple-900/30 shadow-sm dark:shadow-none transition-colors">
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-purple-400 mb-1 transition-colors">Your Name</label>
+                    <input type="text" id="fb-name" required class="w-full px-3 py-2 bg-white dark:bg-black border border-slate-200 dark:border-slate-800 rounded-lg text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 dark:focus:ring-cyan-500/50 focus:border-indigo-500 dark:focus:border-cyan-500 transition-colors">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-purple-400 mb-1 transition-colors">Rating</label>
+                    <select id="fb-rating" class="w-full px-3 py-2 bg-white dark:bg-black border border-slate-200 dark:border-slate-800 rounded-lg text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 dark:focus:ring-cyan-500/50 focus:border-indigo-500 dark:focus:border-cyan-500 transition-colors cursor-pointer">
+                        <option value="5">⭐⭐⭐⭐⭐ 5 Stars</option>
+                        <option value="4">⭐⭐⭐⭐ 4 Stars</option>
+                        <option value="3">⭐⭐⭐ 3 Stars</option>
+                        <option value="2">⭐⭐ 2 Stars</option>
+                        <option value="1">⭐ 1 Star</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-purple-400 mb-1 transition-colors">Review Comments</label>
+                    <textarea id="fb-message" rows="3" required class="w-full px-3 py-2 bg-white dark:bg-black border border-slate-200 dark:border-slate-800 rounded-lg text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 dark:focus:ring-cyan-500/50 focus:border-indigo-500 dark:focus:border-cyan-500 transition-colors"></textarea>
+                </div>
+                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 dark:bg-gradient-to-r dark:from-purple-600 dark:to-blue-600 dark:hover:from-purple-500 dark:hover:to-blue-500 text-white py-2.5 rounded-lg text-sm font-medium shadow-sm dark:shadow-[0_0_15px_rgba(168,85,247,0.3)] transition cursor-pointer">
+                    Submit Review
+                </button>
             </form>
-
-            {% if qr_code %}
-            <div class="qr-result">
-                <img src="{{ qr_code }}" alt="Generated QR Code">
-                <br>
-                <a class="download-btn" href="{{ qr_code }}" download="my_qrcode.png">Download PNG</a>
-            </div>
-            {% endif %}
         </div>
-    </div>
 
-    <div class="slider-container">
-        <div class="logo-track">
-            <span>Microsoft</span><span>Amazon</span><span>Netflix</span><span>Spotify</span><span>Stripe</span>
-            <span>Microsoft</span><span>Amazon</span><span>Netflix</span><span>Spotify</span><span>Stripe</span>
-        </div>
-    </div>
-
-    <div id="about" class="section-container">
-        <h2 class="section-title">Built for Performance</h2>
-        <div class="grid-container">
-            <div class="feature-card">
-                <div class="icon">⚡</div>
-                <h3>Lightning Fast</h3>
-                <p>Codes are generated natively in your browser's memory. No waiting, no loading screens.</p>
-            </div>
-            <div class="feature-card">
-                <div class="icon">🎨</div>
-                <h3>Print Ready</h3>
-                <p>Export crisp, high-resolution PNG files that look perfect on digital screens and physical media.</p>
-            </div>
-            <div class="feature-card">
-                <div class="icon">🔒</div>
-                <h3>Privacy First</h3>
-                <p>We do not track, save, or store your links. Your data remains completely yours.</p>
+        <div class="lg:col-span-7 space-y-4">
+            <h3 class="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2 mb-6 transition-colors">
+                <span>Recent Reviews</span>
+                <span id="review-count" class="text-xs bg-slate-200 dark:bg-cyan-900/50 text-slate-700 dark:text-cyan-400 border border-transparent dark:border-cyan-500/30 px-2 py-0.5 rounded-full font-medium transition-colors">2</span>
+            </h3>
+            <div id="reviews-container" class="space-y-4">
+                <div class="bg-white dark:bg-slate-900/40 p-5 rounded-xl border border-slate-200/60 dark:border-slate-800 shadow-sm dark:shadow-none space-y-2 transition-colors">
+                    <div class="flex items-center justify-between">
+                        <h4 class="font-semibold text-sm text-slate-900 dark:text-white transition-colors">Elena Rostova</h4>
+                        <span class="text-xs text-amber-500 dark:text-cyan-400 font-medium transition-colors">⭐⭐⭐⭐⭐</span>
+                    </div>
+                    <p class="text-slate-600 dark:text-slate-400 text-sm transition-colors">The processing logic handles UTM tracking codes accurately without bloating the matrix geometry complexity. Beautiful job!</p>
+                </div>
+                <div class="bg-white dark:bg-slate-900/40 p-5 rounded-xl border border-slate-200/60 dark:border-slate-800 shadow-sm dark:shadow-none space-y-2 transition-colors">
+                    <div class="flex items-center justify-between">
+                        <h4 class="font-semibold text-sm text-slate-900 dark:text-white transition-colors">James Chen</h4>
+                        <span class="text-xs text-amber-500 dark:text-cyan-400 font-medium transition-colors">⭐⭐⭐⭐</span>
+                    </div>
+                    <p class="text-slate-600 dark:text-slate-400 text-sm transition-colors">Clean layout system and incredibly straightforward. The dual theme support is absolutely brilliant for modern tech tools.</p>
+                </div>
             </div>
         </div>
-    </div>
+    </section>
 
-    <div id="reviews" class="section-container">
-        <h2 class="section-title">Trusted by Professionals</h2>
-        <div class="grid-container">
-            <div class="review-card">
-                <div class="review-text">"This is exactly what I needed for our restaurant menus. Fast, clean, and reliable without any annoying ads."</div>
-                <div class="review-author">Sarah Jenkins</div>
-                <div class="review-role">Cafe Owner</div>
-            </div>
-            <div class="review-card">
-                <div class="review-text">"The most beautiful QR generator I've used. I rely on this daily for embedding links into our physical marketing."</div>
-                <div class="review-author">David Chen</div>
-                <div class="review-role">Marketing Director</div>
-            </div>
-            <div class="review-card">
-                <div class="review-text">"Finally, a generator that doesn't put watermarks on the images or force you to create an account."</div>
-                <div class="review-author">Elena Rodriguez</div>
-                <div class="review-role">Event Planner</div>
-            </div>
-        </div>
-    </div>
-
-    <footer>
-        <p>&copy; 2026 QR Magic Technologies. Powered by Python.</p>
+    <!-- Footer -->
+    <footer class="bg-slate-900 dark:bg-black text-slate-500 dark:text-slate-600 text-xs py-8 border-t border-slate-800 dark:border-purple-900/30 text-center transition-colors duration-300">
+        <p>&copy; 2026 QRCraft Platform. All rights reserved.</p>
     </footer>
 
+    <!-- Logic Engine Context Setup -->
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            // Theme Toggling Logic
+            const themeToggleBtn = document.getElementById('theme-toggle');
+            const themeIcon = document.getElementById('theme-icon');
+
+            if (document.documentElement.classList.contains('dark')) {
+                themeIcon.classList.replace('fa-moon', 'fa-sun');
+            }
+
+            themeToggleBtn.addEventListener('click', () => {
+                document.documentElement.classList.toggle('dark');
+                
+                if (document.documentElement.classList.contains('dark')) {
+                    localStorage.theme = 'dark';
+                    themeIcon.classList.replace('fa-moon', 'fa-sun');
+                } else {
+                    localStorage.theme = 'light';
+                    themeIcon.classList.replace('fa-sun', 'fa-moon');
+                }
+            });
+
+            // QR Code Generation Logic
+            const qrContainer = document.getElementById("qrcode");
+            const qrInput = document.getElementById("qr-input");
+            const generateBtn = document.getElementById("generate-btn");
+            const downloadBtn = document.getElementById("download-btn");
+
+            // Added a fallback string so the initial load doesn't fail on an empty input
+            let qrCodeInstance = new QRCode(qrContainer, {
+                text: qrInput.value || "https://yourwebsite.com",
+                width: 200,
+                height: 200,
+                colorDark: "#000000",
+                colorLight: "#ffffff", 
+                correctLevel: QRCode.CorrectLevel.H
+            });
+
+            generateBtn.addEventListener("click", () => {
+                const targetUrl = qrInput.value.trim();
+                if (targetUrl) {
+                    qrCodeInstance.clear();
+                    qrCodeInstance.makeCode(targetUrl);
+                } else {
+                    alert("Please input a functional verification URL target.");
+                }
+            });
+
+            downloadBtn.addEventListener("click", () => {
+                const img = qrContainer.querySelector("img");
+                if (img && img.src) {
+                    const link = document.createElement("a");
+                    link.href = img.src;
+                    link.download = "qrcraft-export.png";
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                } else {
+                    const canvas = qrContainer.querySelector("canvas");
+                    if(canvas) {
+                        const link = document.createElement("a");
+                        link.href = canvas.toDataURL("image/png");
+                        link.download = "qrcraft-export.png";
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                    }
+                }
+            });
+
+            // Feedback Logic
+            const feedbackForm = document.getElementById("feedback-form");
+            const reviewsContainer = document.getElementById("reviews-container");
+            const reviewCountBadge = document.getElementById("review-count");
+            let localReviewCount = 2;
+
+            feedbackForm.addEventListener("submit", (e) => {
+                e.preventDefault();
+
+                const nameValue = document.getElementById("fb-name").value;
+                const ratingValue = parseInt(document.getElementById("fb-rating").value);
+                const msgValue = document.getElementById("fb-message").value;
+                const starsStr = "⭐".repeat(ratingValue);
+
+                const elementWrapper = document.createElement("div");
+                elementWrapper.className = "bg-white dark:bg-slate-900/40 p-5 rounded-xl border border-slate-200/60 dark:border-slate-800 shadow-sm dark:shadow-none space-y-2 transform transition-all duration-500 ease-out translate-y-4 opacity-0";
+                
+                elementWrapper.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <h4 class="font-semibold text-sm text-slate-900 dark:text-white">${nameValue}</h4>
+                        <span class="text-xs text-amber-500 dark:text-cyan-400 font-medium">${starsStr}</span>
+                    </div>
+                    <p class="text-slate-600 dark:text-slate-400 text-sm">${msgValue}</p>
+                `;
+
+                reviewsContainer.insertBefore(elementWrapper, reviewsContainer.firstChild);
+                feedbackForm.reset();
+
+                setTimeout(() => {
+                    elementWrapper.classList.remove("translate-y-4", "opacity-0");
+                }, 50);
+
+                localReviewCount++;
+                reviewCountBadge.innerText = localReviewCount;
+            });
+        });
+    </script>
 </body>
 </html>
